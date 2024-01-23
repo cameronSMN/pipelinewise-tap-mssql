@@ -38,7 +38,8 @@ REQUIRED_CONFIG_KEYS = ["host", "database"]
 
 LOGGER = singer.get_logger()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+#logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 STRING_TYPES = set(
     [
@@ -168,6 +169,9 @@ def schema_for_column(c, config):
             inclusion="unsupported",
             description="Unsupported column type",
         )
+    logger.critical(f"*******************************")
+    logger.critical(result)
+    logger.critical(f"*******************************")
     return result
 
 
