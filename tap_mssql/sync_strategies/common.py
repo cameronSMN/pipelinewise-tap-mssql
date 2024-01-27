@@ -223,6 +223,7 @@ def whitelist_bookmark_keys(bookmark_key_set, tap_stream_id, state):
 def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version, params, config):
     replication_key = singer.get_bookmark(state, catalog_entry.tap_stream_id, "replication_key")
     LOGGER.info(columns) # CJT
+    columns_upper = [i.upper() for i in columns]    # CJT
     # query_string = cursor.mogrify(select_sql, params)
 
     time_extracted = utils.now()
@@ -242,7 +243,7 @@ def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version
             counter.increment()
             rows_saved += 1
             record_message = row_to_singer_record(
-                catalog_entry, stream_version, row, columns, time_extracted, config
+                catalog_entry, stream_version, row, columns_upper, time_extracted, config    # CJT
             )
             singer.write_message(record_message)
             md_map = metadata.to_map(catalog_entry.metadata)
