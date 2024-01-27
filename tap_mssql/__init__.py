@@ -539,11 +539,10 @@ def get_cdc_streams(mssql_conn, catalog, config, state):
 
 def write_schema_message(catalog_entry, bookmark_properties=[]):
     key_properties = common.get_key_properties(catalog_entry)
-    LOGGER.info(catalog_entry.schema.to_dict()) # CJT
     singer.write_message(
         singer.SchemaMessage(
             stream=catalog_entry.stream,
-            schema=[i.upper() for i in catalog_entry.schema.to_dict()],    # CJT
+            schema=catalog_entry.schema.to_dict(),
             key_properties=[i.upper() for i in key_properties], # CJT
             bookmark_properties=bookmark_properties,
         )
