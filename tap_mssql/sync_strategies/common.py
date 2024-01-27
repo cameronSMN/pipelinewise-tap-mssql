@@ -222,7 +222,7 @@ def whitelist_bookmark_keys(bookmark_key_set, tap_stream_id, state):
 
 def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version, params, config):
     replication_key = singer.get_bookmark(state, catalog_entry.tap_stream_id, "replication_key")
-
+    LOGGER.info(columns) # CJT
     # query_string = cursor.mogrify(select_sql, params)
 
     time_extracted = utils.now()
