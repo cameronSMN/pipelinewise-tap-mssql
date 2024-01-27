@@ -326,8 +326,7 @@ def desired_columns(selected, table_schema):
     unsupported = set()
 
     for column, column_schema in table_schema.properties.items():
-        LOGGER.info(column)
-        LOGGER.info(column_schema)
+        column = column.upper()
         all_columns.add(column)
         inclusion = column_schema.inclusion
         if inclusion == "automatic":
