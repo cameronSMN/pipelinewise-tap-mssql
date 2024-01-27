@@ -109,8 +109,7 @@ def prepare_columns_sql(catalog_entry, c):
         raise Exception(
             "Can't escape identifier {} because it contains a double quote".format(c)
         )
-    # column_name = """ "{}" """.format(c)
-    column_name = c.upper()
+    column_name = """ "{}" """.format(c)
     schema_property = catalog_entry.schema.properties[c]
     sql_data_type = ""
     # additionalProperties is used with singer.decimal to contain scale/precision
