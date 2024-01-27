@@ -304,9 +304,6 @@ def discover_catalog(mssql_conn, config):
                 tap_stream_id=common.generate_tap_stream_id(table_schema, table_name),
                 schema=schema,
             )
-            LOGGER.info(schema)
-            LOGGER.info(table_schema)
-            LOGGER.info(table_name)
             entries.append(entry)
     LOGGER.info("Catalog ready")
     return Catalog(entries)
