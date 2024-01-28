@@ -541,10 +541,20 @@ def write_schema_message(catalog_entry, bookmark_properties=[]):
     key_properties = common.get_key_properties(catalog_entry)
     LOGGER.info(catalog_entry.schema.to_dict())
     LOGGER.info([i.upper() for i in catalog_entry.schema.to_dict()])
+    
+    # CJT: Make columns name uppercase in schema
+    schema = catalog_entry.schema.to_dict()
+    clear_case = true
+    if clear_case:
+        properties_upper = {}
+        for key,value in schema["properties"].items():
+            properties_upper[key.upper()]=value
+        schema["properties"] = properties_upper
+    
     singer.write_message(
         singer.SchemaMessage(
             stream=catalog_entry.stream,
-            schema=catalog_entry.schema.to_dict(),
+            schema=schema,                                      # CJT
             key_properties=[i.upper() for i in key_properties], # CJT
             bookmark_properties=bookmark_properties,
         )
