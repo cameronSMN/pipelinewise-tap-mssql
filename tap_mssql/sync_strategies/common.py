@@ -222,6 +222,7 @@ def whitelist_bookmark_keys(bookmark_key_set, tap_stream_id, state):
 
 
 def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version, params, config):
+    clear_case = True    # CJT
     replication_key = singer.get_bookmark(state, catalog_entry.tap_stream_id, "replication_key")
     LOGGER.info(columns) # CJT
     # query_string = cursor.mogrify(select_sql, params)
@@ -287,13 +288,21 @@ def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version
                     state = singer.write_bookmark(
                         state, catalog_entry.tap_stream_id, "replication_key", replication_key
                     )
-
-                    state = singer.write_bookmark(
-                        state,
-                        catalog_entry.tap_stream_id,
-                        "replication_key_value",
-                        record_message.record[replication_key],
-                    )
+                    # CJT
+                    if clear_case:
+                        state = singer.write_bookmark(
+                            state,
+                            catalog_entry.tap_stream_id,
+                            "replication_key_value",
+                            record_message.record[replication_key.upper()],
+                        )
+                    else:
+                        state = singer.write_bookmark(
+                            state,
+                            catalog_entry.tap_stream_id,
+                            "replication_key_value",
+                            record_message.record[replication_key],
+                        )
             if rows_saved % 1000 == 0:
                 singer.write_message(singer.StateMessage(value=copy.deepcopy(state)))
 
