@@ -544,9 +544,9 @@ def write_schema_message(catalog_entry, bookmark_properties=[]):
     
     # CJT: Make columns name uppercase in schema
     schema = catalog_entry.schema.to_dict()
-    clear_case = true
+    clear_case = True
     if clear_case:
-        properties_upper = {}
+        properties_upper={}
         for key,value in schema["properties"].items():
             properties_upper[key.upper()]=value
         schema["properties"] = properties_upper
