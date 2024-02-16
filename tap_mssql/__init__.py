@@ -199,7 +199,6 @@ def discover_catalog(mssql_conn, config):
     mssql_conn = MSSQLConnection(config)
     filter_dbs_config = config.get("filter_dbs")
 
-    value = 'Greater' if a > 5 else 'Lesser'
     linked_server_four_part_name_prefix = f'{config.get("data_source_name")}.{config.get("database")}.' if config.get("linked_server") else ""
 
     if filter_dbs_config:
