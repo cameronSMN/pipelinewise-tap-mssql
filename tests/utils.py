@@ -20,6 +20,9 @@ def get_db_config(use_env_db_name=False, use_schema_name=False):
     config["charset"] = "utf8"
     config["port"] = int(os.environ.get("tap_mssql_PORT", 1433))
     config["tds_version"] = os.environ.get("tap_mssql_TDS_VERSION", "7.3")
+    config["linked_server"] = os.environ.get("tap_mssql_LINKED_SERVER", False)
+    if config["linked_server"]:
+        config["data_source_name"] = os.environ.get("tap_mssql_DATA_SOURCE_NAME")
 
     if use_env_db_name:
         config["database"] = os.environ.get("tap_mssql_DATABASE")

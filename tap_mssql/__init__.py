@@ -199,6 +199,9 @@ def discover_catalog(mssql_conn, config):
     mssql_conn = MSSQLConnection(config)
     filter_dbs_config = config.get("filter_dbs")
 
+    value = 'Greater' if a > 5 else 'Lesser'
+    linked_server_four_part_name_prefix = f'{config.get("data_source_name")}.{config.get("database")}.' if config.get("linked_server") else ""
+
     if filter_dbs_config:
         filter_dbs_clause = ",".join(["'{}'".format(db) for db in filter_dbs_config.split(",")])
 
@@ -216,14 +219,12 @@ def discover_catalog(mssql_conn, config):
         cur = open_conn.cursor()
         LOGGER.info("Fetching tables")
         cur.execute(
-            """SELECT TABLE_SCHEMA,
+            f"""SELECT TABLE_SCHEMA,
                 TABLE_NAME,
                 TABLE_TYPE
-            FROM INFORMATION_SCHEMA.TABLES c
-            {}
-        """.format(
-                table_schema_clause
-            )
+            FROM {linked_server_four_part_name_prefix}INFORMATION_SCHEMA.TABLES c
+            {table_schema_clause}
+        """
         )
         table_info = {}
 
@@ -234,18 +235,19 @@ def discover_catalog(mssql_conn, config):
             table_info[db][table] = {"row_count": None, "is_view": table_type == "VIEW"}
         LOGGER.info("Tables fetched, fetching columns")
         cur.execute(
-            """with constraint_columns as (
+            f"""with constraint_columns as (
                 select c.TABLE_SCHEMA
                 , c.TABLE_NAME
                 , c.COLUMN_NAME
 
-                from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE c
+                from {linked_server_four_part_name_prefix}INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE c
 
-                join INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                join {linked_server_four_part_name_prefix}INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
                         on tc.TABLE_SCHEMA = c.TABLE_SCHEMA
                         and tc.TABLE_NAME = c.TABLE_NAME
                         and tc.CONSTRAINT_NAME = c.CONSTRAINT_NAME
-                        and tc.CONSTRAINT_TYPE in ('PRIMARY KEY', 'UNIQUE'))
+                        and tc.CONSTRAINT_TYPE in ('PRIMARY KEY', 'UNIQUE')
+                )
                 SELECT c.TABLE_SCHEMA,
                     c.TABLE_NAME,
                     c.COLUMN_NAME,
@@ -254,18 +256,16 @@ def discover_catalog(mssql_conn, config):
                     NUMERIC_PRECISION,
                     NUMERIC_SCALE,
                     case when cc.COLUMN_NAME is null then 0 else 1 end
-                FROM INFORMATION_SCHEMA.COLUMNS c
+                FROM {linked_server_four_part_name_prefix}INFORMATION_SCHEMA.COLUMNS c
 
                 left join constraint_columns cc
                     on cc.TABLE_NAME = c.TABLE_NAME
                     and cc.TABLE_SCHEMA = c.TABLE_SCHEMA
                     and cc.COLUMN_NAME = c.COLUMN_NAME
 
-                {}
+                {table_schema_clause}
                 ORDER BY c.TABLE_SCHEMA, c.TABLE_NAME, c.ORDINAL_POSITION
-        """.format(
-                table_schema_clause
-            )
+        """
         )
         columns = []
         LOGGER.info(f"{ARRAYSIZE=}")
