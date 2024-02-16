@@ -169,9 +169,6 @@ def schema_for_column(c, config):
             inclusion="unsupported",
             description="Unsupported column type",
         )
-    logger.critical(f"*******************************")
-    logger.critical(result)
-    logger.critical(f"*******************************")
     return result
 
 
@@ -455,10 +452,6 @@ def get_non_cdc_streams(mssql_conn, catalog, config, state):
     """
     mssql_conn = MSSQLConnection(config)
     discovered = discover_catalog(mssql_conn, config)
-
-    LOGGER.critical(f"+++++++++++++++++++++++++++++++++++++++++++++'disovered' is:")
-    #LOGGER.critical(discovered)
-    LOGGER.critical(f"+++++++++++++++++++++++++++++++++++++++++++++")
 
     # Filter catalog to include only selected streams
     selected_streams = list(filter(lambda s: common.stream_is_selected(s), catalog.streams))

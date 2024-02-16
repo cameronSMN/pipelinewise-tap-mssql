@@ -39,7 +39,6 @@ class MSSQLConnection(pymssql.Connection):
         }
 
         # DO NOT specify database when connecting to a linked server
-        LOGGER.critical(f"¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤The environment variable 'linked_server' is set to {config.get('linked_server')} and is of type {type(config.get('linked_server'))}")
         if config.get("linked_server", False):
             del args["database"]
 
