@@ -133,13 +133,21 @@ def prepare_columns_sql(catalog_entry, c):
     return column_name
 
 
-def generate_select_sql(catalog_entry, columns):
+def generate_select_sql(catalog_entry, columns, config):
     database_name = get_database_name(catalog_entry)
     escaped_db = escape(database_name)
     escaped_table = escape(catalog_entry.table)
+
+    LOGGER.critical(f"ååååååååååååååååååå escaped_db: {escaped_db}")
+    LOGGER.critical(f"ååååååååååååååååååå escaped_table: {escaped_table}")
+    return
+
     escaped_columns = map(lambda c: prepare_columns_sql(catalog_entry, c), columns)
 
-    select_sql = "SELECT {} FROM {}.{}".format(",".join(escaped_columns), escaped_db, escaped_table)
+    linked_server_four_part_name_prefix = f'{config.get("data_source_name")}.{config.get("database")}.' if config.get("linked_server") else ""
+    
+    select_sql = f'SELECT {",".join(escaped_columns)} FROM {escaped_db}.{escaped_table}'
+    #select_sql = "SELECT {} FROM {}.{}".format(",".join(escaped_columns), escaped_db, escaped_table)
 
     return select_sql
 

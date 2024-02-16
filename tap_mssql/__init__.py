@@ -457,7 +457,7 @@ def get_non_cdc_streams(mssql_conn, catalog, config, state):
     discovered = discover_catalog(mssql_conn, config)
 
     LOGGER.critical(f"+++++++++++++++++++++++++++++++++++++++++++++'disovered' is:")
-    LOGGER.critical(discovered)
+    #LOGGER.critical(discovered)
     LOGGER.critical(f"+++++++++++++++++++++++++++++++++++++++++++++")
 
     # Filter catalog to include only selected streams
