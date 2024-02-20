@@ -34,7 +34,14 @@ class MSSQLConnection(pymssql.Connection):
             "charset": config.get("characterset", "utf8"),
             "port": config.get("port", "1433"),
             "tds_version": config.get("tds_version", "7.3"),
+            #"linked_server": config.get("linked_server", False),
+            #"data_source_name": config.get("data_source_name", None), # OLE DB data source name
         }
+
+        # DO NOT specify database when connecting to a linked server
+        if config.get("linked_server", False):
+            del args["database"]
+
         conn = pymssql._mssql.connect(**args)
         super().__init__(conn, False, True)
 
