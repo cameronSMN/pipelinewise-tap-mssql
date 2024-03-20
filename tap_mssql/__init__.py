@@ -135,8 +135,8 @@ def schema_for_column(c, config):
         # https://docs.microsoft.com/en-us/sql/relational-databases/system-information-schema-views/columns-transact-sql?view=sql-server-ver15
         # -1 is not valid JSON schema
         # https://json-schema.org/understanding-json-schema/reference/string.html#length
-        if c.character_maximum_length != -1:
-            result.maxLength = c.character_maximum_length
+        # if c.character_maximum_length != -1:
+        #     result.maxLength = c.character_maximum_length
 
     elif data_type in DATETIME_TYPES:
         result.additionalProperties = {"sql_data_type": data_type}
@@ -304,7 +304,6 @@ def discover_catalog(mssql_conn, config):
                 tap_stream_id=common.generate_tap_stream_id(table_schema, table_name),
                 schema=schema,
             )
-
             entries.append(entry)
     LOGGER.info("Catalog ready")
     return Catalog(entries)
@@ -540,12 +539,23 @@ def get_cdc_streams(mssql_conn, catalog, config, state):
 
 def write_schema_message(catalog_entry, bookmark_properties=[]):
     key_properties = common.get_key_properties(catalog_entry)
-
+    LOGGER.info(catalog_entry.schema.to_dict())
+    LOGGER.info([i.upper() for i in catalog_entry.schema.to_dict()])
+    
+    # CJT: Make columns name uppercase in schema
+    schema = catalog_entry.schema.to_dict()
+    clear_case = True
+    if clear_case:
+        properties_upper={}
+        for key,value in schema["properties"].items():
+            properties_upper[key.upper()]=value
+        schema["properties"] = properties_upper
+    
     singer.write_message(
         singer.SchemaMessage(
             stream=catalog_entry.stream,
-            schema=catalog_entry.schema.to_dict(),
-            key_properties=key_properties,
+            schema=schema,                                      # CJT
+            key_properties=[i.upper() for i in key_properties], # CJT
             bookmark_properties=bookmark_properties,
         )
     )

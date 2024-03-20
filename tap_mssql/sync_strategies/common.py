@@ -204,7 +204,8 @@ def row_to_singer_record(catalog_entry, version, row, columns, time_extracted, c
                 row_to_persist += (str(elem),)
         else:
             row_to_persist += (elem,)
-    rec = dict(zip(columns, row_to_persist))
+    columns_upper = [i.upper() for i in columns]    # CJT
+    rec = dict(zip(columns_upper, row_to_persist))
 
     return singer.RecordMessage(
         stream=catalog_entry.stream, record=rec, version=version, time_extracted=time_extracted
@@ -221,8 +222,9 @@ def whitelist_bookmark_keys(bookmark_key_set, tap_stream_id, state):
 
 
 def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version, params, config):
+    clear_case = True    # CJT
     replication_key = singer.get_bookmark(state, catalog_entry.tap_stream_id, "replication_key")
-
+    LOGGER.info(columns) # CJT
     # query_string = cursor.mogrify(select_sql, params)
 
     time_extracted = utils.now()
@@ -286,13 +288,21 @@ def sync_query(cursor, catalog_entry, state, select_sql, columns, stream_version
                     state = singer.write_bookmark(
                         state, catalog_entry.tap_stream_id, "replication_key", replication_key
                     )
-
-                    state = singer.write_bookmark(
-                        state,
-                        catalog_entry.tap_stream_id,
-                        "replication_key_value",
-                        record_message.record[replication_key],
-                    )
+                    # CJT
+                    if clear_case:
+                        state = singer.write_bookmark(
+                            state,
+                            catalog_entry.tap_stream_id,
+                            "replication_key_value",
+                            record_message.record[replication_key.upper()],
+                        )
+                    else:
+                        state = singer.write_bookmark(
+                            state,
+                            catalog_entry.tap_stream_id,
+                            "replication_key_value",
+                            record_message.record[replication_key],
+                        )
             if rows_saved % 1000 == 0:
                 singer.write_message(singer.StateMessage(value=copy.deepcopy(state)))
 
